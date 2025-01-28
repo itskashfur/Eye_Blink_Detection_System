@@ -6,8 +6,9 @@ Real-Time Eye Blink Detection using Facial Landmarks
 ![495123_1_En_77_Fig2_HTML](https://github.com/user-attachments/assets/9a57141c-50d3-4611-90a4-ae7d0ab7e1b8)
 Figure 1: Open and closed eyes with landmarks pi automatically detected by [1]. The eye aspect ratio EAR in Eq. (1) plotted for several frames of a video sequence. A single blink is present.
 
-* 1. Introduction
-   Detecting eye blinks is important for instance in systems that monitor a human operator vigilance,e.g. driver drowsiness [5, 13], in systems that warn a computer user staring at the screen without blink
+1. Introduction
+   -----------
+ Detecting eye blinks is important for instance in systems that monitor a human operator vigilance,e.g. driver drowsiness [5, 13], in systems that warn a computer user staring at the screen without blink
 ing for a long time to prevent the dry eye and the computer vision syndromes [17, 7, 8], in human computer interfaces that ease communication for disabled people [15], or for anti-spoofing protection in face recognition systems [11].Existing methods are either active or passive. Active methods are reliable but use special hardware,often expensive and intrusive, e.g. infrared cameras and illuminators [2], wearable devices, glasses with a special close-up cameras observing the eyes [10].While the passive systems rely on a standard remote camera only.
   Many methods have been proposed to automatically detect eye blinks in a video sequence. Several methods are based on a motion estimation in the eye region. Typically, the face and eyes are detected by a Viola-Jones type detector. Next, motion in the eye area is estimated from optical flow, by sparse tracking [7, 8],
 or by frame-to-frame intensity differencing and adaptive thresholding. Finally, a decision is made whether the eyes are or are not covered by eyelids [9, 15]. A different approach is to infer the state of the eye opening from a single image, as e.g. by correlation matching with open and closed eye tem plates [4], a heuristic horizontal or vertical image intensity projection over the eye region [5, 6], a para metric model fitting to find the eyelids [18], or active shape models [14].
@@ -25,6 +26,7 @@ or by frame-to-frame intensity differencing and adaptive thresholding. Finally, 
 Figure 2: Example of detected blinks. The plots of the eye aspect ratio EAR in Eq. (1), results of the EAR thresholding (threshold set to 0.2), the blinks detected by EAR SVM and the ground-truth labels over the video sequence. Input image with detected landmarks (depicted frame is marked by a red line).
  
 * 2. Proposed method
+  ------------------
   The eye blink is a fast closing and reopening of a human eye. Each individual has a little bit different pattern of blinks. The pattern differs in the speed of closing and opening, a degree of squeezing the eye and in a blink duration. The eye blink lasts approximately 100-400 ms.
 
 
