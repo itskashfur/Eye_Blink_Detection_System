@@ -25,8 +25,8 @@ or by frame-to-frame intensity differencing and adaptive thresholding. Finally, 
  ![2-Figure2-1](https://github.com/user-attachments/assets/77504133-e1bd-4ebe-bca9-695eb1965fc1)
 Figure 2: Example of detected blinks. The plots of the eye aspect ratio EAR in Eq. (1), results of the EAR thresholding (threshold set to 0.2), the blinks detected by EAR SVM and the ground-truth labels over the video sequence. Input image with detected landmarks (depicted frame is marked by a red line).
  
-* 2. Proposed method
-  ------------------
+2. Proposed method
+   --------------
   The eye blink is a fast closing and reopening of a human eye. Each individual has a little bit different pattern of blinks. The pattern differs in the speed of closing and opening, a degree of squeezing the eye and in a blink duration. The eye blink lasts approximately 100-400 ms.
 
 
