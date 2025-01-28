@@ -41,7 +41,7 @@ Figure 2: Example of detected blinks. The plots of the eye aspect ratio EAR in E
  This is implemented by a linear SVM classifier(called EAR SVM) trained from manually annotated sequences. Positive examples are collected as  ground-truth blinks, while the negatives are those that are sampled from parts of the videos where no blink occurs, with 5 frames spacing and 7 frames margin from the ground-truth blinks. While testing, a classifier is executed in a scanning-window fashion. A13-dimensional feature is computed and classified by EAR SVM for each frame except the beginning and ending of a video sequence.
 
 3. Experiments
----------------
+   -----------
  Two types of experiments were carried out: The experiments that measure accuracy of the landmark detectors, see Sec. 3.1, and the experiments that evaluate performance of the whole eye blink detection algorithm, see Sec 3.2.
    3.1. Accuracy of landmark detectors
    To evaluate accuracy of tested landmark detectors,weused the 300-VW dataset [19]. It is a dataset containing 50 videos where each frame has associated a precise annotation of facial landmarks. The videos are “in-the-wild”, mostly recorded from a TV.
