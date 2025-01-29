@@ -49,8 +49,9 @@ Figure 2: Example of detected blinks. The plots of the eye aspect ratio EAR in E
  Two state-of-the-art landmark detectors were tested: Chehra [1] and Intraface [16]. Both run in real-time1. Samples from the dataset are shown in Fig. 3. Notice that faces are not always frontal to the camera, the expression is not always neutral, people are often emotionally speaking or smiling, etc.Sometimes people wear glasses, hair may occasionally partially occlude one of the eyes. Both detectors perform generally well, but the Intraface is more robust to very small face images, sometimes at impressive extent as shown in Fig. 3.
 ![28-Figure5 1-1](https://github.com/user-attachments/assets/b56bac77-79e3-4894-9063-684975a61d77)
 Figure 3: Example images from the 300-VW dataset with landmarks obtained by Chehra [1] and Intraface [16]. Original images (left) with inter-ocular distance (IOD) equal to 63 (top) and 53 (bottom) pixels. Images subsampled (right) to IOD equal to 6.3(top) and 17 (bottom).
-
-
+ Quantitatively, the accuracy of the landmark detection for a face image is measured by the average relative landmark localization error, defined as usually
+ where xi is the ground-truth location of landmark i in the image, xi is an estimated landmark location by a detector, N is a number of landmarks and normalization factor is the inter-ocular distance (IOD), i.e.Euclidean distance between eye centers in the image.
+ First, a standard cumulative histogram of the aver age relative landmark localization error was calculated, see Fig. 4, for a complete set of 49 landmarks and also for a subset of 12landmarksoftheeyesonly,since these landmarks are used in the proposed eye blink detector. The results are calculated for all the original images that have average IOD around 80 px,and also for all “small” face images (including sub Sampled ones) having IOD 50 px. For all landmarks, Chehra has more occurrences of very small errors (up to 5 percent of the IOD), but Intraface is more robust having more occurrences of errors below 10 percent of the IOD. For eye landmarks only, the Intraface is always more precise than Chehra. As already mentioned, the Intraface is much more robust to small images than Chehra. This behaviour is further observed in the following experiment.
 
 
 
