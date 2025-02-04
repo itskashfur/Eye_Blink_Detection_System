@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blink Detection</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <script type="text/javascript">
+        function startCamera() {
+            document.getElementById('video').src = "{{ url_for('video_feed') }}";
+        }
+    </script>
+</head>
+<body>
+    <div class="cover">
+        <h1>Blink Detector and Counter Eye Tracking Using Opencv2</h1>
+    </div>
+    <div class="container">
+        <button onclick="startCamera()">Open Camera</button>
+        <br><br>
+        <img id="video" />
+    </div>
+</body>
+</html>
