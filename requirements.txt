@@ -1,0 +1,13 @@
+python=3.6
+conda install -c conda-forge dlib
+flask
+opencv-python
+
+
+#packages install 
+python=3.6
+opencv-contrib-python==4.5.1.48
+opencv-python==4.5.4.60
+dlib==19.22.0
+Flask==2.0.3
+wheel==0.37.1
