@@ -1,0 +1,50 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+.cover {
+    background: url('../static/1.png') no-repeat center center fixed;
+    background-size: cover;
+    text-align: center;
+    padding: 50px 0;
+    height: 300px;
+}
+
+
+
+
+
+.container {
+    text-align: center;
+    padding-top: 50px;
+}
+
+h1 {
+    color: #000000;
+    font-size: 2.5em;
+    margin-bottom: 20px;
+}
+
+button {
+    background-color: hsl(315, 77%, 76%);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1.2em;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #ff9fda;
+}
+
+img {
+    width: 640px;
+    height: 480px;
+    border: 2px solid #fff;
+    border-radius: 10px;
+    margin-top: 20px;
+}
