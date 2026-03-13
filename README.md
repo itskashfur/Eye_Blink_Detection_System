@@ -1,9 +1,6 @@
 <h1 align="center">Real-Time Eye Blink Detection using Facial Landmarks</h1>
 
-<hr>
-
 <h2>Abstract</h2>
-
 <p>
 A real-time algorithm to detect eye blinks in a video sequence from a standard camera is proposed.
 Recent landmark detectors trained on in-the-wild datasets exhibit strong robustness against head orientation,
