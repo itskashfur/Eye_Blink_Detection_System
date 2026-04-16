@@ -5,15 +5,18 @@ A real-time algorithm to detect eye blinks in a video sequence from a standard c
 Recent landmark detectors trained on in-the-wild datasets exhibit strong robustness against head orientation,
 illumination changes, and facial expressions.
 </p>
+
 <p>
 The algorithm estimates facial landmark positions and extracts a scalar quantity called the
 <strong>Eye Aspect Ratio (EAR)</strong>, which characterizes eye opening in each frame.
 A linear SVM classifier detects blinks as a temporal pattern of EAR values.
 The proposed method achieves state-of-the-art performance on standard datasets.
 </p>
+
 <p align="center">
   <img src="https://github.com/user-attachments/assets/9a57141c-50d3-4611-90a4-ae7d0ab7e1b8" width="600">
 </p>
+
 <p align="center"><em>
 Figure 1: Open and closed eyes with automatically detected landmarks.
 The EAR signal across frames showing a blink.
