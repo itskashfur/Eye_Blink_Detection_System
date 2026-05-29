@@ -1,7 +1,9 @@
 <h1 align="center" > Real-Time Eye Blink Detection using Facial Landmarks </h1 >
 <p align="center">
-  <a href="https://blinksense.netlify.app/" target="_blank">
-    <img src="https://img.shields.io/badge/Live%20Demo-BlinkSense-007acc?style=for-the-badge&logo=google-chrome&logoColor=white" alt="BlinkSense">
+  <a href="https://blinksense.netlify.app/" target="_blank" style="text-decoration:none;">
+    <span style="background-color:#007acc; color:white; padding:10px 20px; border-radius:5px; font-weight:bold; font-family:sans-serif; display:inline-block; box-shadow: 0px 4px 6px rgba(0,0,0,0.1);">
+      🌐 Open BlinkSense
+    </span>
   </a>
 </p>
 <h2> Abstract </h2>
