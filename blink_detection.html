@@ -1,0 +1,1700 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blink Detection System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;500;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    :root {
+      --g1: #00e676;
+      --g2: #69f0ae;
+      --g3: rgba(0, 230, 118, .12);
+      --g4: rgba(0, 230, 118, .06);
+      --g5: rgba(0, 230, 118, .03);
+      --dark: #060a07;
+      --p1: #0a0f0b;
+      --p2: #0d1510;
+      --p3: #111a13;
+      --border: rgba(0, 230, 118, .14);
+      --border2: rgba(0, 230, 118, .22);
+      --text: #b8f0cc;
+      --muted: #3e7050;
+      --amber: #ffd54f;
+      --red: #ff5252;
+      --font-head: 'Syne', sans-serif;
+      --font-mono: 'Space Mono', monospace;
+    }
+
+    html,
+    body {
+      min-height: 100vh;
+      background: var(--dark);
+      color: var(--text);
+      font-family: var(--font-head);
+      overflow-x: hidden;
+    }
+
+    /* ─── Dot-grid BG ─── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(0, 230, 118, .07) 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ─── Header ─── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 28px;
+      border-bottom: 0.5px solid var(--border);
+      background: rgba(6, 10, 7, .85);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 14px
+    }
+
+    .logo-mark {
+      width: 44px;
+      height: 44px;
+      background: var(--g3);
+      border: 0.5px solid var(--border2);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .logo-mark::after {
+      content: '';
+      position: absolute;
+      inset: -5px;
+      border-radius: 16px;
+      border: 0.5px solid rgba(0, 230, 118, .08);
+    }
+
+    .logo-mark i {
+      font-size: 22px;
+      color: var(--g1)
+    }
+
+    .logo-text .name {
+      font-size: 17px;
+      font-weight: 800;
+      color: #d0fde0;
+      letter-spacing: .03em;
+      line-height: 1.2;
+    }
+
+    .logo-text .tag {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      font-family: var(--font-mono);
+      margin-top: 1px;
+    }
+
+    /* Status pill */
+    #spill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 14px;
+      border-radius: 24px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-family: var(--font-mono);
+      border: 0.5px solid rgba(255, 255, 255, .08);
+      background: rgba(255, 255, 255, .03);
+      color: var(--muted);
+      transition: all .5s cubic-bezier(.22, 1, .36, 1);
+    }
+
+    .sdot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+      flex-shrink: 0;
+      transition: all .3s
+    }
+
+    .sp-run {
+      background: rgba(0, 230, 118, .1);
+      border-color: rgba(0, 230, 118, .3);
+      color: var(--g1)
+    }
+
+    .sp-blink {
+      background: rgba(255, 213, 79, .12);
+      border-color: rgba(255, 213, 79, .35);
+      color: var(--amber)
+    }
+
+    .sp-done {
+      background: rgba(100, 150, 120, .08);
+      border-color: rgba(100, 150, 120, .2);
+      color: #7aaa8a
+    }
+
+    .sp-run .sdot {
+      animation: pdot 1.6s ease-in-out infinite
+    }
+
+    @keyframes pdot {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1)
+      }
+
+      50% {
+        opacity: .2;
+        transform: scale(.65)
+      }
+    }
+
+    /* ─── Control Bar ─── */
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 28px;
+      border-bottom: 0.5px solid var(--border);
+      background: rgba(6, 10, 7, .6);
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 22px;
+      border-radius: 9px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: all .2s;
+      font-family: var(--font-head);
+      letter-spacing: .03em;
+      white-space: nowrap;
+    }
+
+    .btn-start {
+      background: var(--g3);
+      border: 0.5px solid rgba(0, 230, 118, .35);
+      color: var(--g1);
+    }
+
+    .btn-start:hover:not(:disabled) {
+      background: rgba(0, 230, 118, .2);
+      border-color: rgba(0, 230, 118, .6);
+      box-shadow: 0 0 18px rgba(0, 230, 118, .12);
+    }
+
+    .btn-stop {
+      background: rgba(255, 82, 82, .08);
+      border: 0.5px solid rgba(255, 82, 82, .28);
+      color: #ff6e6e;
+    }
+
+    .btn-stop:hover:not(:disabled) {
+      background: rgba(255, 82, 82, .18);
+      border-color: rgba(255, 82, 82, .5);
+      box-shadow: 0 0 18px rgba(255, 82, 82, .1);
+    }
+
+    .btn-dl {
+      background: rgba(255, 213, 79, .07);
+      border: 0.5px solid rgba(255, 213, 79, .25);
+      color: var(--amber);
+    }
+
+    .btn-dl:hover:not(:disabled) {
+      background: rgba(255, 213, 79, .15);
+      border-color: rgba(255, 213, 79, .45);
+      box-shadow: 0 0 18px rgba(255, 213, 79, .08);
+    }
+
+    .btn:disabled {
+      opacity: .28;
+      cursor: default;
+      box-shadow: none
+    }
+
+    .btn i {
+      font-size: 16px
+    }
+
+    .ctrl-sep {
+      width: .5px;
+      height: 26px;
+      background: rgba(255, 255, 255, .08)
+    }
+
+    .ctrl-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap
+    }
+
+    .sess-timer {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--muted);
+      padding: 8px 14px;
+      background: rgba(0, 230, 118, .04);
+      border: 0.5px solid var(--border);
+      border-radius: 8px;
+    }
+
+    .sess-timer i {
+      font-size: 14px;
+      color: var(--muted)
+    }
+
+    /* ─── Main Layout ─── */
+    .main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0;
+      align-items: start;
+      transition: grid-template-columns .4s ease;
+    }
+
+    .main.two-col {
+      grid-template-columns: 1fr 380px;
+    }
+
+    /* ─── Camera Section ─── */
+    .cam-section {
+      padding: 20px 24px;
+      border-right: 0.5px solid transparent;
+      transition: border-color .3s;
+    }
+
+    .main.two-col .cam-section {
+      border-right-color: var(--border)
+    }
+
+    .cam-panel {
+      background: #030604;
+      border: 0.5px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 0 60px rgba(0, 0, 0, .5), 0 0 1px rgba(0, 230, 118, .1);
+    }
+
+    .cam-inner {
+      position: relative;
+      aspect-ratio: 16/12;
+      width: 100%;
+      background: #020402;
+    }
+
+    #vid {
+      display: none
+    }
+
+    #oc {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Sweep scan */
+    .sweep {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      opacity: 0;
+      transition: opacity .5s;
+    }
+
+    .sweep.on {
+      opacity: 1
+    }
+
+    .sline {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(0, 230, 118, .6), rgba(0, 230, 118, .9), rgba(0, 230, 118, .6), transparent);
+      top: -2px;
+      animation: swp 3s linear infinite;
+      filter: blur(1px);
+    }
+
+    @keyframes swp {
+      from {
+        top: -2px
+      }
+
+      to {
+        top: calc(100% + 2px)
+      }
+    }
+
+    /* Corner reticles */
+    .reticle {
+      position: absolute;
+      inset: 14px;
+      pointer-events: none;
+      z-index: 2
+    }
+
+    .rc {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      border-color: rgba(0, 230, 118, .65);
+      border-style: solid;
+      transition: border-color .3s, width .3s, height .3s;
+    }
+
+    .rc-tl {
+      top: 0;
+      left: 0;
+      border-width: 2px 0 0 2px;
+      border-radius: 2px 0 0 0
+    }
+
+    .rc-tr {
+      top: 0;
+      right: 0;
+      border-width: 2px 2px 0 0;
+      border-radius: 0 2px 0 0
+    }
+
+    .rc-bl {
+      bottom: 0;
+      left: 0;
+      border-width: 0 0 2px 2px;
+      border-radius: 0 0 0 2px
+    }
+
+    .rc-br {
+      bottom: 0;
+      right: 0;
+      border-width: 0 2px 2px 0;
+      border-radius: 0 0 2px 0
+    }
+
+    .reticle.blink-flash .rc {
+      border-color: rgba(255, 234, 0, .9);
+      width: 28px;
+      height: 28px;
+      animation: rc-pulse .5s ease;
+    }
+
+    @keyframes rc-pulse {
+      0% {
+        border-color: rgba(255, 234, 0, 1)
+      }
+
+      100% {
+        border-color: rgba(0, 230, 118, .65)
+      }
+    }
+
+    /* Blink banner */
+    #bfx {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, .7);
+      border: 0.5px solid rgba(0, 230, 118, .5);
+      border-radius: 5px;
+      padding: 5px 16px;
+      font-size: 11px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      color: var(--g1);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      display: none;
+      pointer-events: none;
+      white-space: nowrap;
+      z-index: 4;
+      box-shadow: 0 0 12px rgba(0, 230, 118, .2);
+    }
+
+    /* HUD bar */
+    #hub {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 8px 12px;
+      display: none;
+      justify-content: space-between;
+      z-index: 3;
+      background: linear-gradient(transparent, rgba(0, 0, 0, .8));
+    }
+
+    .etag {
+      background: rgba(0, 0, 0, .6);
+      border: 0.5px solid rgba(0, 230, 118, .15);
+      border-radius: 5px;
+      padding: 5px 9px;
+      font-size: 9px;
+      color: rgba(255, 255, 255, .28);
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      font-family: var(--font-mono);
+    }
+
+    .enum {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 16px;
+      color: var(--g1);
+      font-weight: 700;
+      margin-top: 2px;
+      letter-spacing: .03em;
+      transition: color .2s;
+    }
+
+    /* Idle overlay */
+    #idle {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      background: rgba(2, 4, 2, .97);
+      z-index: 5;
+    }
+
+    .idle-eye {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 1px solid rgba(0, 230, 118, .18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .idle-eye::before {
+      content: '';
+      position: absolute;
+      inset: -12px;
+      border-radius: 50%;
+      border: 0.5px solid rgba(0, 230, 118, .07);
+      animation: orb 3s ease-in-out infinite;
+    }
+
+    .idle-eye::after {
+      content: '';
+      position: absolute;
+      inset: -24px;
+      border-radius: 50%;
+      border: 0.5px solid rgba(0, 230, 118, .04);
+      animation: orb 4s ease-in-out infinite reverse;
+    }
+
+    @keyframes orb {
+
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: .6
+      }
+
+      50% {
+        transform: scale(1.08);
+        opacity: .2
+      }
+    }
+
+    .idle-eye i {
+      font-size: 32px;
+      color: rgba(0, 230, 118, .4)
+    }
+
+    .idle-headline {
+      font-size: 16px;
+      font-weight: 700;
+      color: rgba(0, 230, 118, .5);
+      letter-spacing: .04em;
+    }
+
+    .idle-sub {
+      font-size: 12px;
+      color: rgba(0, 230, 118, .22);
+      font-family: var(--font-mono);
+      text-align: center;
+      max-width: 220px;
+      line-height: 1.7;
+    }
+
+    #errbox {
+      display: none;
+      font-size: 11px;
+      color: var(--red);
+      background: rgba(255, 82, 82, .07);
+      border: 0.5px solid rgba(255, 82, 82, .2);
+      border-radius: 6px;
+      padding: 7px 14px;
+      text-align: center;
+      max-width: 240px;
+      font-family: var(--font-mono);
+    }
+
+    /* Info chips bar */
+    .chips {
+      display: flex;
+      gap: 6px;
+      padding: 10px 12px;
+      border-top: 0.5px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      background: var(--g5);
+      border: 0.5px solid rgba(0, 230, 118, .08);
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-size: 10px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      flex: 1;
+      justify-content: center;
+      white-space: nowrap;
+    }
+
+    .chip strong {
+      color: #69f0ae;
+      font-weight: 700
+    }
+
+    /* ─── Right Column ─── */
+    .right-col {
+      display: none;
+      flex-direction: column;
+      border-left: 0.5px solid var(--border);
+      min-height: 100%;
+      overflow: hidden;
+    }
+
+    .right-col.visible {
+      display: flex
+    }
+
+    /* ─── Live Stats ─── */
+    #lstats {
+      display: none;
+      flex-direction: column;
+      padding: 20px 20px;
+      gap: 10px;
+      flex: 1;
+    }
+
+    #lstats.on {
+      display: flex
+    }
+
+    .stat-hero {
+      background: var(--p2);
+      border: 0.5px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 3px;
+      height: 100%;
+      background: linear-gradient(180deg, var(--g1), rgba(0, 230, 118, .2));
+    }
+
+    .stat-hero::after {
+      content: '';
+      position: absolute;
+      top: -20px;
+      right: -20px;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0, 230, 118, .06), transparent 70%);
+    }
+
+    .slabel {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      color: var(--muted);
+      margin-bottom: 5px;
+      font-family: var(--font-mono);
+    }
+
+    .sval {
+      font-size: 36px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      color: var(--g2);
+      line-height: 1;
+      letter-spacing: -.01em;
+      transition: color .2s;
+    }
+
+    .sunit {
+      font-size: 13px;
+      color: var(--muted);
+      font-family: var(--font-head);
+      font-weight: 400
+    }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px
+    }
+
+    .mc {
+      background: var(--p2);
+      border: 0.5px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+
+    .mlabel {
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+      margin-bottom: 4px;
+      font-family: var(--font-mono);
+    }
+
+    .mval {
+      font-size: 20px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      color: var(--g2);
+    }
+
+    .munit {
+      font-size: 10px;
+      color: var(--muted);
+      font-family: var(--font-head);
+      font-weight: 400
+    }
+
+    /* EAR graph */
+    .gcrd {
+      background: var(--p2);
+      border: 0.5px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .ghead {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-family: var(--font-mono);
+    }
+
+    .tleg {
+      color: rgba(255, 213, 79, .55)
+    }
+
+    #earGraph {
+      width: 100%;
+      display: block;
+      flex: 1
+    }
+
+    /* Log card */
+    .lcrd {
+      background: var(--p2);
+      border: 0.5px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+
+    .llbl {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+      margin-bottom: 7px;
+      font-family: var(--font-mono);
+    }
+
+    .llist {
+      display: flex;
+      flex-direction: column;
+      gap: 4px
+    }
+
+    .lrow {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 11px;
+      color: #4a7a5a;
+      font-family: var(--font-mono);
+      animation: sli .3s ease;
+      padding: 3px 0;
+    }
+
+    .ldot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--g1);
+      flex-shrink: 0
+    }
+
+    .ltime {
+      color: var(--muted);
+      font-size: 10px
+    }
+
+    .lear {
+      font-size: 10px;
+      color: #2d5a3d;
+      margin-left: auto
+    }
+
+    @keyframes sli {
+      from {
+        opacity: 0;
+        transform: translateY(-4px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    /* ─── Report Panel ─── */
+    #rpt {
+      display: none;
+      flex-direction: column;
+      padding: 20px;
+      gap: 14px;
+      flex: 1;
+    }
+
+    #rpt.on {
+      display: flex
+    }
+
+    .rpt-header {
+      padding-bottom: 12px;
+      border-bottom: 0.5px solid var(--border);
+    }
+
+    .rpt-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--g2);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .rpt-title i {
+      font-size: 18px
+    }
+
+    .rpt-meta {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: var(--font-mono)
+    }
+
+    .rsum {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px
+    }
+
+    .rcard {
+      background: var(--g4);
+      border: 0.5px solid rgba(0, 230, 118, .12);
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .rcard::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--g1), transparent);
+      opacity: .3;
+    }
+
+    .rcval {
+      font-family: var(--font-mono);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--g1);
+      display: block;
+      letter-spacing: -.01em;
+    }
+
+    .rclabel {
+      font-size: 9px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      margin-top: 4px;
+      font-family: var(--font-mono);
+    }
+
+    .rsec {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      color: var(--muted);
+      padding-bottom: 6px;
+      font-family: var(--font-mono);
+      border-bottom: 0.5px solid rgba(0, 230, 118, .08);
+    }
+
+    #rpChart {
+      width: 100%;
+      display: block;
+      border-radius: 4px
+    }
+
+    .rbl {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+
+    .rbl::-webkit-scrollbar {
+      width: 3px
+    }
+
+    .rbl::-webkit-scrollbar-thumb {
+      background: rgba(0, 230, 118, .18);
+      border-radius: 2px
+    }
+
+    .rbl::-webkit-scrollbar-track {
+      background: transparent
+    }
+
+    .rbrow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 9px;
+      background: rgba(0, 230, 118, .03);
+      border: 0.5px solid rgba(0, 230, 118, .06);
+      border-radius: 5px;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+    }
+
+    .rbn {
+      color: var(--g1);
+      min-width: 24px;
+      font-weight: 700
+    }
+
+    .rbt {
+      color: #4a7a5a;
+      flex: 1
+    }
+
+    .rbe {
+      color: #2d5a3d;
+      margin-left: auto
+    }
+
+    /* ─── Responsive breakpoints ─── */
+    @media(max-width:900px) {
+      .main.two-col {
+        grid-template-columns: 1fr
+      }
+
+      .main.two-col .cam-section {
+        border-right: none;
+        border-bottom: 0.5px solid var(--border)
+      }
+
+      .right-col {
+        border-left: none;
+        border-top: 0.5px solid var(--border)
+      }
+    }
+
+    @media(max-width:600px) {
+      header {
+        padding: 12px 16px
+      }
+
+      .controls {
+        padding: 10px 16px;
+        gap: 7px
+      }
+
+      .cam-section {
+        padding: 14px 14px
+      }
+
+      .btn {
+        padding: 9px 14px;
+        font-size: 12px
+      }
+
+      .sess-timer {
+        padding: 7px 10px;
+        font-size: 12px
+      }
+
+      .sval {
+        font-size: 28px
+      }
+
+      .logo-text .name {
+        font-size: 15px
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="app">
+
+    <!-- Header -->
+    <header>
+      <div class="logo">
+        <div class="logo-mark"><i class="ti ti-eye"></i></div>
+        <div class="logo-text">
+          <div class="name">BlinkSense</div>
+          <div class="tag">EAR · MediaPipe · Real-time</div>
+        </div>
+      </div>
+      <div id="spill">
+        <span class="sdot"></span>
+        <span id="stxt">Standby</span>
+      </div>
+    </header>
+
+    <!-- Controls -->
+    <div class="controls">
+      <button class="btn btn-start" id="btnSt" onclick="startD()">
+        <i class="ti ti-player-play-filled"></i> Start
+      </button>
+      <div class="ctrl-sep"></div>
+      <button class="btn btn-stop" id="btnSp" onclick="stopD()" disabled>
+        <i class="ti ti-player-stop-filled"></i> Stop
+      </button>
+      <div class="ctrl-right">
+        <div class="sess-timer">
+          <i class="ti ti-clock"></i>
+          <span id="sessLbl">0:00</span>
+        </div>
+        <button class="btn btn-dl" id="btnDL" onclick="downloadPDF()" disabled>
+          <i class="ti ti-file-download"></i> Download Report
+        </button>
+      </div>
+    </div>
+
+    <!-- Main -->
+    <div class="main" id="main">
+
+      <!-- Camera -->
+      <div class="cam-section">
+        <div class="cam-panel">
+          <div class="cam-inner">
+            <video id="vid" autoplay muted playsinline></video>
+            <canvas id="oc"></canvas>
+
+            <!-- Scan sweep -->
+            <div class="sweep" id="sweep">
+              <div class="sline"></div>
+            </div>
+
+            <!-- Reticle brackets -->
+            <div class="reticle" id="reticle">
+              <div class="rc rc-tl"></div>
+              <div class="rc rc-tr"></div>
+              <div class="rc rc-bl"></div>
+              <div class="rc rc-br"></div>
+            </div>
+
+            <!-- Blink banner -->
+            <div id="bfx">⬤ BLINK DETECTED</div>
+
+            <!-- HUD -->
+            <div id="hub">
+              <div class="etag">L-EAR <span class="enum" id="le">–</span></div>
+              <div class="etag">AVG-EAR <span class="enum" id="ae">–</span></div>
+              <div class="etag">R-EAR <span class="enum" id="re">–</span></div>
+            </div>
+
+            <!-- Idle overlay -->
+            <div id="idle">
+              <div class="idle-eye"><i class="ti ti-eye-off"></i></div>
+              <div class="idle-headline">Detection Inactive</div>
+              <div class="idle-sub">Press Start to activate camera and begin real-time blink tracking</div>
+              <div id="errbox"></div>
+            </div>
+          </div>
+
+          <!-- Chips -->
+          <div class="chips">
+            <div class="chip">Threshold <strong id="thrC">0.20</strong></div>
+            <div class="chip">Frames <strong>2</strong></div>
+            <div class="chip">FPS <strong id="fpsC">–</strong></div>
+            <div class="chip">Faces <strong id="faceC">0</strong></div>
+            <div class="chip">Landmarks <strong>468</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right col -->
+      <div class="right-col" id="rcol">
+
+        <!-- Live stats -->
+        <div id="lstats">
+          <div class="stat-hero">
+            <div class="slabel">Blinks Detected</div>
+            <div class="sval" id="blkCnt">0</div>
+          </div>
+          <div class="mini-grid">
+            <div class="mc">
+              <div class="mlabel">Blink Rate</div>
+              <div class="mval" id="rateEl">–<span class="munit">/min</span></div>
+            </div>
+            <div class="mc">
+              <div class="mlabel">Avg EAR</div>
+              <div class="mval" id="avgEarEl">–</div>
+            </div>
+          </div>
+          <div class="gcrd">
+            <div class="ghead">
+              <span>EAR Signal</span>
+              <span class="tleg">— 0.20 threshold</span>
+            </div>
+            <canvas id="earGraph" height="80"></canvas>
+          </div>
+          <div class="lcrd">
+            <div class="llbl">Recent Blinks</div>
+            <div class="llist" id="llist">
+              <div style="font-size:11px;color:#2d5a3d;font-family:var(--font-mono)">Waiting for blinks…</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Report -->
+        <div id="rpt">
+          <div class="rpt-header">
+            <div class="rpt-title"><i class="ti ti-chart-dots"></i> Session Report</div>
+            <div class="rpt-meta" id="rptMeta">–</div>
+          </div>
+          <div class="rsum" id="rsum"></div>
+          <div class="rsec">EAR Signal History</div>
+          <canvas id="rpChart" height="80"></canvas>
+          <div class="rsec">Blink Timeline <span id="blkTotalLbl" style="color:var(--g1)"></span></div>
+          <div class="rbl" id="rbl"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous"></script>
+  <script>
+    /* ─── Constants ─── */
+    const L_EAR_PTS = [33, 160, 158, 133, 153, 144];
+    const R_EAR_PTS = [362, 385, 387, 263, 373, 380];
+    const L_OUT = [33, 7, 163, 144, 145, 153, 154, 155, 133, 173, 157, 158, 159, 160, 161, 246];
+    const R_OUT = [362, 382, 381, 380, 374, 373, 390, 249, 263, 466, 388, 387, 386, 385, 384, 398];
+    const THRESH = 0.20, FRAMES = 2;
+
+    /* ─── State ─── */
+    let blkCnt = 0, closedF = 0, blkDet = false;
+    let earHist = [], blkLog = [];
+    let startTime = null, stopTime = null;
+    let stream = null, fMesh = null, appState = 'idle';
+    let frameN = 0, lastFpsT = Date.now(), fps = 0;
+    let earSum = 0, earN = 0;
+
+    /* ─── DOM refs ─── */
+    const vid = document.getElementById('vid');
+    const oc = document.getElementById('oc');
+    const ctx = oc.getContext('2d');
+
+    /* ─── Math ─── */
+    function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y) }
+    function calcEAR(lm, pts) {
+      const [p1, p2, p3, p4, p5, p6] = pts.map(i => lm[i]);
+      return (dist(p2, p6) + dist(p3, p5)) / (2 * dist(p1, p4));
+    }
+    function fmtTime(ms) {
+      const s = Math.floor(ms / 1000);
+      return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+    }
+
+    /* ─── Status ─── */
+    function setStatus(txt, cls) {
+      const el = document.getElementById('spill');
+      el.className = cls || '';
+      document.getElementById('stxt').textContent = txt;
+    }
+
+    /* ─── Drawing ─── */
+    function drawOutline(lm, pts, col, lw) {
+      ctx.beginPath();
+      pts.forEach((idx, i) => {
+        const p = lm[idx];
+        const x = (1 - p.x) * oc.width, y = p.y * oc.height;
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      });
+      ctx.closePath();
+      ctx.strokeStyle = col; ctx.lineWidth = lw;
+      ctx.globalAlpha = .9; ctx.stroke(); ctx.globalAlpha = 1;
+    }
+
+    function drawDot(lm, idx, col) {
+      const p = lm[idx];
+      ctx.beginPath();
+      ctx.arc((1 - p.x) * oc.width, p.y * oc.height, 2.5, 0, Math.PI * 2);
+      ctx.fillStyle = col; ctx.fill();
+    }
+
+    /* ─── EAR Graph ─── */
+    function drawGraph(canvas, hist) {
+      const w = canvas.offsetWidth || 300;
+      canvas.width = w;
+      const h = canvas.height;
+      const c = canvas.getContext('2d');
+      c.clearRect(0, 0, w, h);
+
+      // Grid
+      c.strokeStyle = 'rgba(0,230,118,.06)'; c.lineWidth = .5;
+      for (let i = 1; i < 4; i++) {
+        const y = Math.round(h * i / 4) + .5;
+        c.beginPath(); c.moveTo(0, y); c.lineTo(w, y); c.stroke();
+      }
+
+      // Threshold
+      const MAX = .45, ty = h * (1 - THRESH / MAX);
+      c.setLineDash([4, 4]);
+      c.strokeStyle = 'rgba(255,213,79,.45)'; c.lineWidth = .8;
+      c.beginPath(); c.moveTo(0, ty); c.lineTo(w, ty); c.stroke();
+      c.setLineDash([]);
+
+      const sl = hist.slice(-120);
+      if (sl.length < 2) return;
+      const step = w / 120;
+
+      c.beginPath();
+      sl.forEach((v, i) => {
+        const x = i * step, y = h * (1 - Math.min(v, MAX) / MAX);
+        i === 0 ? c.moveTo(x, y) : c.lineTo(x, y);
+      });
+      c.strokeStyle = '#00e676'; c.lineWidth = 1.8; c.stroke();
+
+      c.lineTo((sl.length - 1) * step, h); c.lineTo(0, h); c.closePath();
+      c.fillStyle = 'rgba(0,230,118,.07)'; c.fill();
+
+      // Blink markers
+      const recent = blkLog.slice(-10);
+      if (recent.length > 0 && hist.length > 5) {
+        c.fillStyle = 'rgba(255,213,79,.7)';
+        recent.forEach(b => {
+          const idx = hist.length - 1 - (Date.now() - b.ts) / 33 | 0;
+          if (idx >= 0 && idx < sl.length) {
+            const x = idx * step, y = h * (1 - Math.min(hist[hist.length - 1 - idx + sl.length - 1] || .1, MAX) / MAX);
+            c.beginPath(); c.arc(x, Math.max(2, y), 3, 0, Math.PI * 2); c.fill();
+          }
+        });
+      }
+    }
+
+    /* ─── Blink event ─── */
+    function onBlink(avg) {
+      blkCnt++;
+      const ts = Date.now();
+      const t = new Date(ts).toLocaleTimeString('en', { hour12: false });
+      blkLog.push({ n: blkCnt, t, ear: avg.toFixed(3), ts });
+
+      // Update counter with flash
+      const el = document.getElementById('blkCnt');
+      el.textContent = blkCnt;
+      el.style.color = '#ffea00';
+      setTimeout(() => el.style.color = '', 250);
+
+      // Recent blinks
+      const recent = blkLog.slice(-6).reverse();
+      document.getElementById('llist').innerHTML = recent.map(b =>
+        `<div class="lrow"><span class="ldot"></span>
+     <span class="ltime">${b.t}</span>
+     <span style="color:#4a7a5a">blink #${b.n}</span>
+     <span class="lear">${b.ear}</span></div>`
+      ).join('');
+
+      // Blink banner
+      const bfx = document.getElementById('bfx');
+      bfx.style.display = 'block';
+      clearTimeout(bfx._t);
+      bfx._t = setTimeout(() => bfx.style.display = 'none', 550);
+
+      // Reticle flash
+      const ret = document.getElementById('reticle');
+      ret.classList.add('blink-flash');
+      clearTimeout(ret._t);
+      ret._t = setTimeout(() => ret.classList.remove('blink-flash'), 500);
+
+      // Status flash
+      setStatus('BLINK!', 'sp-blink');
+      clearTimeout(window._st);
+      window._st = setTimeout(() => setStatus('Detecting', 'sp-run'), 700);
+    }
+
+    /* ─── MediaPipe callback ─── */
+    function onResults(res) {
+      if (!res.image) return;
+      oc.width = res.image.width; oc.height = res.image.height;
+
+      ctx.save();
+      ctx.clearRect(0, 0, oc.width, oc.height);
+      ctx.scale(-1, 1); ctx.translate(-oc.width, 0);
+      ctx.drawImage(res.image, 0, 0);
+      ctx.restore();
+
+      // FPS
+      frameN++;
+      const now = Date.now();
+      if (now - lastFpsT >= 1000) {
+        fps = Math.round(frameN * 1000 / (now - lastFpsT));
+        document.getElementById('fpsC').textContent = fps;
+        frameN = 0; lastFpsT = now;
+      }
+
+      const hasF = res.multiFaceLandmarks && res.multiFaceLandmarks.length > 0;
+      document.getElementById('faceC').textContent = hasF ? res.multiFaceLandmarks.length : 0;
+
+      if (hasF) {
+        const lm = res.multiFaceLandmarks[0];
+        const lE = calcEAR(lm, L_EAR_PTS);
+        const rE = calcEAR(lm, R_EAR_PTS);
+        const avg = (lE + rE) / 2;
+
+        earHist.push(avg); if (earHist.length > 600) earHist.shift();
+        earSum += avg; earN++;
+
+        // Blink detect
+        if (avg < THRESH) {
+          closedF++;
+          if (!blkDet && closedF >= FRAMES) { blkDet = true; onBlink(avg); }
+        } else { if (blkDet) blkDet = false; closedF = 0; }
+
+        // Draw overlays
+        const closed = avg < THRESH;
+        const ecol = closed ? '#ffea00' : '#00e676';
+
+        ctx.save();
+        ctx.scale(-1, 1); ctx.translate(-oc.width, 0);
+        drawOutline(lm, L_OUT, ecol, closed ? 2.2 : 1.5);
+        drawOutline(lm, R_OUT, ecol, closed ? 2.2 : 1.5);
+        [...L_EAR_PTS, ...R_EAR_PTS].forEach(i => drawDot(lm, i, ecol));
+        ctx.restore();
+
+        // HUD
+        document.getElementById('le').textContent = lE.toFixed(3);
+        document.getElementById('re').textContent = rE.toFixed(3);
+        document.getElementById('ae').textContent = avg.toFixed(3);
+
+        // Stats
+        const avgEarDisp = (earN > 0 ? (earSum / earN) : 0).toFixed(3);
+        document.getElementById('avgEarEl').textContent = avgEarDisp;
+        if (startTime) {
+          const el = Date.now() - startTime;
+          const mins = el / 60000;
+          if (mins > 0.05) {
+            const rate = (blkCnt / mins).toFixed(1);
+            document.getElementById('rateEl').innerHTML = rate + '<span class="munit"> /min</span>';
+          }
+        }
+      } else {
+        ['le', 're', 'ae'].forEach(id => document.getElementById(id).textContent = '–');
+      }
+
+      drawGraph(document.getElementById('earGraph'), earHist);
+    }
+
+    /* ─── Layout ─── */
+    function setLayout(state) {
+      const mainEl = document.getElementById('main');
+      const rcol = document.getElementById('rcol');
+      const ls = document.getElementById('lstats');
+      const rpt = document.getElementById('rpt');
+      const narrow = window.innerWidth < 900;
+
+      if (state === 'idle') {
+        mainEl.classList.remove('two-col');
+        rcol.classList.remove('visible');
+        ls.classList.remove('on');
+        rpt.classList.remove('on');
+      } else {
+        if (!narrow) mainEl.classList.add('two-col');
+        else mainEl.classList.remove('two-col');
+        rcol.classList.add('visible');
+        if (state === 'running') { ls.classList.add('on'); rpt.classList.remove('on'); }
+        else { ls.classList.remove('on'); rpt.classList.add('on'); }
+      }
+    }
+
+    /* ─── Start ─── */
+    async function startD() {
+      const btn = document.getElementById('btnSt');
+      const err = document.getElementById('errbox');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="ti ti-loader-2" style="animation:spin 1s linear infinite"></i> Loading…';
+      err.style.display = 'none';
+
+      try {
+        if (typeof FaceMesh === 'undefined') throw new Error('FaceMesh not loaded. Please refresh.');
+        stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480, facingMode: 'user' } });
+        vid.srcObject = stream;
+        await new Promise(r => { vid.onloadedmetadata = r; });
+        await vid.play();
+
+        fMesh = new FaceMesh({ locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${f}` });
+        fMesh.setOptions({ maxNumFaces: 1, refineLandmarks: false, minDetectionConfidence: .5, minTrackingConfidence: .5 });
+        fMesh.onResults(onResults);
+
+        // Reset
+        blkCnt = 0; closedF = 0; blkDet = false; earHist = []; blkLog = [];
+        earSum = 0; earN = 0; frameN = 0; lastFpsT = Date.now();
+        startTime = Date.now(); stopTime = null; appState = 'running';
+
+        document.getElementById('blkCnt').textContent = '0';
+        document.getElementById('rateEl').innerHTML = '–<span class="munit"> /min</span>';
+        document.getElementById('avgEarEl').textContent = '–';
+        document.getElementById('llist').innerHTML = '<div style="font-size:11px;color:#2d5a3d;font-family:var(--font-mono)">Waiting for blinks…</div>';
+        document.getElementById('idle').style.display = 'none';
+        document.getElementById('hub').style.display = 'flex';
+        document.getElementById('sweep').classList.add('on');
+
+        setStatus('Detecting', 'sp-run');
+        setLayout('running');
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="ti ti-player-play-filled"></i> Running';
+        document.getElementById('btnSp').disabled = false;
+        document.getElementById('btnDL').disabled = true;
+
+        window._sessInt = setInterval(() => {
+          if (startTime && appState === 'running')
+            document.getElementById('sessLbl').textContent = fmtTime(Date.now() - startTime);
+        }, 1000);
+
+        async function loop() {
+          if (appState !== 'running') return;
+          if (vid.readyState >= 2) { try { await fMesh.send({ image: vid }); } catch (_) { } }
+          requestAnimationFrame(loop);
+        }
+        loop();
+
+      } catch (e) {
+        let msg = 'Camera error. ';
+        if (e.name === 'NotAllowedError') msg = 'Camera permission denied.';
+        else if (e.name === 'NotFoundError') msg = 'No camera device found.';
+        else if (e.message) msg = e.message;
+        err.textContent = msg; err.style.display = 'block';
+        btn.disabled = false;
+        btn.innerHTML = '<i class="ti ti-player-play-filled"></i> Start';
+        setStatus('Error', '');
+      }
+    }
+
+    /* ─── Stop ─── */
+    function stopD() {
+      appState = 'stopped';
+      stopTime = Date.now();
+      if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+      clearInterval(window._sessInt);
+      document.getElementById('sweep').classList.remove('on');
+      document.getElementById('hub').style.display = 'none';
+      setStatus('Stopped', 'sp-done');
+      setLayout('stopped');
+      buildReport();
+      document.getElementById('btnSt').disabled = false;
+      document.getElementById('btnSt').innerHTML = '<i class="ti ti-player-play-filled"></i> Start';
+      document.getElementById('btnSp').disabled = true;
+      document.getElementById('btnDL').disabled = false;
+      if (startTime) document.getElementById('sessLbl').textContent = fmtTime(stopTime - startTime);
+    }
+
+    /* ─── Build Report ─── */
+    function buildReport() {
+      const dur = startTime && stopTime ? stopTime - startTime : 0;
+      const mins = dur / 60000;
+      const rate = mins > 0.01 ? (blkCnt / mins).toFixed(1) : '–';
+      const avgE = earN > 0 ? (earSum / earN).toFixed(3) : '–';
+      const minE = earHist.length > 0 ? Math.min(...earHist).toFixed(3) : '–';
+
+      document.getElementById('rptMeta').textContent =
+        new Date(startTime).toLocaleString() + ' · Duration ' + fmtTime(dur);
+
+      document.getElementById('rsum').innerHTML = [
+        { v: blkCnt, l: 'Total Blinks' },
+        { v: rate, l: 'Blinks / min' },
+        { v: fmtTime(dur), l: 'Duration' },
+        { v: avgE, l: 'Avg EAR' },
+        { v: minE, l: 'Min EAR' },
+        { v: String(earN), l: 'Frames Analyzed' },
+      ].map(c => `<div class="rcard"><span class="rcval">${c.v}</span><span class="rclabel">${c.l}</span></div>`).join('');
+
+      document.getElementById('blkTotalLbl').textContent = `(${blkCnt} total)`;
+
+      setTimeout(() => drawGraph(document.getElementById('rpChart'), earHist), 60);
+
+      document.getElementById('rbl').innerHTML = blkLog.length === 0
+        ? '<div style="font-size:11px;color:#2d5a3d;padding:6px;font-family:var(--font-mono)">No blinks recorded</div>'
+        : blkLog.map(b => `<div class="rbrow"><span class="rbn">#${b.n}</span><span class="rbt">${b.t}</span><span class="rbe">EAR ${b.ear}</span></div>`).join('');
+    }
+
+    /* ─── PDF Download ─── */
+    function downloadPDF() {
+      if (!window.jspdf) { alert('PDF library not loaded. Please refresh.'); return; }
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const W = 210, H = 297;
+      let y = 0;
+
+      function page() {
+        doc.setFillColor(6, 10, 7);
+        doc.rect(0, 0, W, H, 'F');
+      }
+      page();
+
+      // Header band
+      doc.setFillColor(10, 20, 12);
+      doc.rect(0, 0, W, 35, 'F');
+      doc.setDrawColor(0, 230, 118); doc.setLineWidth(.4);
+      doc.line(0, 35, W, 35);
+
+      // Title
+      doc.setTextColor(0, 230, 118); doc.setFontSize(20); doc.setFont('helvetica', 'bold');
+      doc.text('BlinkSense Detection Report', 14, 22);
+      doc.setTextColor(62, 112, 80); doc.setFontSize(9); doc.setFont('helvetica', 'normal');
+      doc.text('Generated: ' + new Date().toLocaleString(), 14, 30);
+
+      // Top right badge
+      doc.setTextColor(0, 150, 70); doc.setFontSize(8);
+      doc.text('EAR ALGORITHM · MEDIAPIPE · 468 LANDMARKS', W - 14, 22, { align: 'right' });
+
+      y = 46;
+
+      // Summary header
+      doc.setTextColor(0, 230, 118); doc.setFontSize(12); doc.setFont('helvetica', 'bold');
+      doc.text('Session Summary', 14, y); y += 8;
+
+      const dur = startTime && stopTime ? stopTime - startTime : 0;
+      const mins = dur / 60000;
+      const rate = mins > 0.01 ? (blkCnt / mins).toFixed(1) : '–';
+      const avgE = earN > 0 ? (earSum / earN).toFixed(3) : '–';
+      const minE = earHist.length > 0 ? Math.min(...earHist).toFixed(3) : '–';
+
+      const cards = [
+        ['Total Blinks', String(blkCnt)],
+        ['Blink Rate', rate + ' /min'],
+        ['Duration', fmtTime(dur)],
+        ['Avg EAR', avgE],
+        ['Min EAR', minE],
+        ['EAR Threshold', '0.20'],
+      ];
+
+      const cw = (W - 28 - 10) / 3;
+      cards.forEach(([label, val], i) => {
+        const col = i % 3, row = Math.floor(i / 3);
+        const cx = 14 + col * (cw + 5), cy = y + row * 22;
+        doc.setFillColor(10, 25, 14); doc.setDrawColor(0, 80, 40); doc.setLineWidth(.25);
+        doc.roundedRect(cx, cy, cw, 16, 2, 2, 'FD');
+        doc.setTextColor(62, 112, 80); doc.setFontSize(7.5); doc.setFont('helvetica', 'normal');
+        doc.text(label, cx + 5, cy + 7);
+        doc.setTextColor(0, 230, 118); doc.setFontSize(11); doc.setFont('helvetica', 'bold');
+        doc.text(val, cx + 5, cy + 14);
+      });
+      y += 52;
+
+      // Session info
+      doc.setTextColor(62, 112, 80); doc.setFontSize(8); doc.setFont('helvetica', 'normal');
+      if (startTime) doc.text('Start: ' + new Date(startTime).toLocaleString() + '  |  End: ' + (stopTime ? new Date(stopTime).toLocaleString() : '–'), 14, y);
+      y += 10;
+
+      // EAR chart
+      if (earHist.length > 2) {
+        doc.setTextColor(0, 230, 118); doc.setFontSize(12); doc.setFont('helvetica', 'bold');
+        doc.text('EAR Signal History', 14, y); y += 6;
+
+        const tmp = document.createElement('canvas');
+        tmp.width = 600; tmp.height = 120;
+        const tc = tmp.getContext('2d');
+        tc.fillStyle = '#060a07'; tc.fillRect(0, 0, tmp.width, tmp.height);
+
+        // Grid
+        tc.strokeStyle = 'rgba(0,230,118,.08)'; tc.lineWidth = .5;
+        for (let i = 1; i < 4; i++) {
+          const gy = tmp.height * i / 4;
+          tc.beginPath(); tc.moveTo(0, gy); tc.lineTo(tmp.width, gy); tc.stroke();
+        }
+        // Threshold
+        const MAX = .45, ty2 = tmp.height * (1 - THRESH / MAX);
+        tc.setLineDash([5, 5]); tc.strokeStyle = 'rgba(255,213,79,.5)'; tc.lineWidth = 1;
+        tc.beginPath(); tc.moveTo(0, ty2); tc.lineTo(tmp.width, ty2); tc.stroke(); tc.setLineDash([]);
+        // EAR line
+        const sl = earHist; const step = tmp.width / Math.max(sl.length, 1);
+        tc.beginPath();
+        sl.forEach((v, i) => {
+          const x = i * step, vy = tmp.height * (1 - Math.min(v, MAX) / MAX);
+          i === 0 ? tc.moveTo(x, vy) : tc.lineTo(x, vy);
+        });
+        tc.strokeStyle = '#00e676'; tc.lineWidth = 2; tc.stroke();
+        tc.lineTo((sl.length - 1) * step, tmp.height); tc.lineTo(0, tmp.height); tc.closePath();
+        tc.fillStyle = 'rgba(0,230,118,.08)'; tc.fill();
+
+        try { doc.addImage(tmp.toDataURL('image/jpeg', .92), 'JPEG', 14, y, W - 28, 38); } catch (_) { }
+        y += 44;
+      }
+
+      y += 6;
+
+      // Blink timeline
+      if (blkLog.length > 0) {
+        doc.setTextColor(0, 230, 118); doc.setFontSize(12); doc.setFont('helvetica', 'bold');
+        doc.text('Blink Timeline (' + blkLog.length + ' events)', 14, y); y += 8;
+
+        // Table header
+        doc.setFillColor(0, 40, 18);
+        doc.rect(14, y - 5, W - 28, 9, 'F');
+        doc.setTextColor(0, 160, 70); doc.setFontSize(8); doc.setFont('helvetica', 'bold');
+        doc.text('#', 16, y);
+        doc.text('Timestamp', 26, y);
+        doc.text('EAR Value', 75, y);
+        doc.text('Status', 110, y);
+        y += 10;
+
+        blkLog.forEach((b, i) => {
+          if (y > 270) { doc.addPage(); page(); y = 20; }
+          if (i % 2 === 0) { doc.setFillColor(5, 18, 8); doc.rect(14, y - 4.5, W - 28, 8, 'F'); }
+          doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
+          doc.setTextColor(0, 200, 100); doc.text(String(b.n), 16, y);
+          doc.setTextColor(74, 140, 100); doc.text(b.t, 26, y);
+          doc.setTextColor(0, 230, 118); doc.text(b.ear, 75, y);
+          doc.setTextColor(parseFloat(b.ear) < THRESH ? 200 : 74, 140, 100);
+          doc.text(parseFloat(b.ear) < THRESH ? 'Below thr (BLINK)' : 'Above thr', 110, y);
+          y += 8;
+        });
+      }
+
+      // Footer
+      doc.setDrawColor(0, 80, 40); doc.setLineWidth(.25);
+      doc.line(14, H - 16, W - 14, H - 16);
+      doc.setTextColor(40, 80, 50); doc.setFontSize(7.5); doc.setFont('helvetica', 'normal');
+      doc.text('BlinkSense · EAR Algorithm · MediaPipe Face Mesh · Real-time Eye Blink Detection', W / 2, H - 9, { align: 'center' });
+
+      doc.save('blinksense-report-' + new Date().toISOString().slice(0, 10) + '.pdf');
+    }
+
+    /* ─── Responsive ─── */
+    window.addEventListener('resize', () => {
+      if (appState !== 'idle') setLayout(appState);
+    });
+
+    /* ─── Spin animation ─── */
+    document.head.insertAdjacentHTML('beforeend',
+      `<style>@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}</style>`
+    );
+  </script>
+</body>
+
+</html>
