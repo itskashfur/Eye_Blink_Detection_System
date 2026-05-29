@@ -1,19 +1,12 @@
 <h1 align="center" > Real-Time Eye Blink Detection using Facial Landmarks </h1 >
 <p align="center">
-  <a href="https://blinksense.netlify.app/" target="_blank" style="text-decoration:none;">
-    <span style="background-color:#007acc; color:white; padding:10px 20px; border-radius:5px; font-weight:bold; font-family:sans-serif; display:inline-block; box-shadow: 0px 4px 6px rgba(0,0,0,0.1);">
-      🌐 Open BlinkSense
-    </span>
+  <a href="https://blinksense.netlify.app/" target="_blank">
+    <img src="https://img.shields.io/badge/Live%20Demo-BlinkSense-007acc?style=for-the-badge&logo=google-chrome&logoColor=white" alt="BlinkSense">
   </a>
 </p>
+
 <h2> Abstract </h2>
 <p> A real-time algorithm to detect eye blinks in a video sequence... </p>
-<p>
-The algorithm estimates facial landmark positions and extracts a scalar quantity called the
-<strong>Eye Aspect Ratio (EAR)</strong>, which characterizes eye opening in each frame.
-A linear SVM classifier detects blinks as a temporal pattern of EAR values.
-The proposed method achieves state-of-the-art performance on standard datasets.
-</p>
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/9a57141c-50d3-4611-90a4-ae7d0ab7e1b8" width="600">
