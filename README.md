@@ -1,4 +1,9 @@
 <h1 align="center">Real-Time Eye Blink Detection using Facial Landmarks</h1>
+<p align="center">
+  <a href="https://blinksense.netlify.app/" target="_blank">
+    <img src="https://img.shields.io/badge/Live%20Demo-BlinkSense-007acc?style=for-the-badge&logo=google-chrome&logoColor=white" alt="BlinkSense">
+  </a>
+</p>
 <h2>Abstract</h2>
 <p>
 A real-time algorithm to detect eye blinks in a video sequence from a standard camera is proposed.
